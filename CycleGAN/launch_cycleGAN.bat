@@ -1,0 +1,1 @@
+python train.py --X=data/tfrecords/summer.tfrecords --Y=data/tfrecords/winter.tfrecords --batch_size=1 --image_size=256
