@@ -29,7 +29,7 @@ python3 --version
 pip3 --version
 virtualenv --version
  
-pip3 install --upgrade tensorflow-gpu==1.12.0
+pip3 install tensorflow-gpu==1.12.0
 python3 -c "import tensorflow as tf; tf.enable_eager_execution(); print(tf.reduce_sum(tf.random_normal([1000, 1000])))"
  
 # Step #2: Install Keras
