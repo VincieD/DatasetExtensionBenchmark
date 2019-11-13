@@ -8,7 +8,7 @@ module add cudnn-7.0
  
 # activate virtual enviroment
 # on KONOS7
-cd /~
+cd ~/DatasetExtensionBenchmark
 virtualenv ENV_CYCLE_GAN_TF_1_14
 source ENV_CYCLE_GAN_TF_1_14/bin/activate
  
