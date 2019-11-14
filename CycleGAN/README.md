@@ -1,6 +1,8 @@
 # CycleGAN-TensorFlow
 An implementation of CycleGan using TensorFlow (work in progress).
 
+### Implementation taken from here: https://github.com/vanhuyz/CycleGAN-TensorFlow
+
 Original paper: https://arxiv.org/abs/1703.10593
 
 ## Results on test data

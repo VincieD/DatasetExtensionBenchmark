@@ -8,9 +8,9 @@ module add cudnn-7.0
  
 # activate virtual enviroment
 # on KONOS7
-cd /~
-virtualenv ENV_CYCLE_GAN_TF_1_14
-source ENV_CYCLE_GAN_TF_1_14/bin/activate
+cd ~/DatasetExtensionBenchmark
+virtualenv ENV_CYCLE_GAN_TF_1_12
+source ENV_CYCLE_GAN_TF_1_12/bin/activate
 
 
 python train.py --X=data/tfrecords/summer.tfrecords --Y=data/tfrecords/winter.tfrecords --batch_size=1 --image_size=256

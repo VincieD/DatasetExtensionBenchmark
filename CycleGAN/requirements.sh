@@ -8,9 +8,9 @@ module add cudnn-7.0
  
 # activate virtual enviroment
 # on KONOS7
-cd /~
-virtualenv ENV_CYCLE_GAN_TF_1_14
-source ENV_CYCLE_GAN_TF_1_14/bin/activate
+cd ~/DatasetExtensionBenchmark
+virtualenv ENV_CYCLE_GAN_TF_1_12
+source ENV_CYCLE_GAN_TF_1_12/bin/activate
  
 # deactivate virtual enviroment
 # deactivate
@@ -19,7 +19,7 @@ source ENV_CYCLE_GAN_TF_1_14/bin/activate
 # https://www.tensorflow.org/install/pip?lang=python2
 
 # Redirectiong TEMP
-TMPDIR=/storage/plzen1/home/vincie/ENV_CYCLE_GAN_TF_1_14
+TMPDIR=/storage/plzen1/home/vincie/DatasetExtensionBenchmark/ENV_CYCLE_GAN_TF_1_12
 TMP=$TMPDIR
 TEMP=$TMPDIR
 export TMPDIR TMP TEMP
@@ -29,7 +29,7 @@ python3 --version
 pip3 --version
 virtualenv --version
  
-pip3 install --upgrade tensorflow-gpu==1.14.0
+pip3 install tensorflow-gpu==1.12.0
 python3 -c "import tensorflow as tf; tf.enable_eager_execution(); print(tf.reduce_sum(tf.random_normal([1000, 1000])))"
  
 # Step #2: Install Keras
