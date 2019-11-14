@@ -19,7 +19,9 @@ class CycleGAN:
                lambda2=10,
                learning_rate=2e-4,
                beta1=0.5,
-               ngf=64
+               ngf=64,
+               constant_steps=100000,
+               decay_steps=100000
               ):
     """
     Args:
@@ -45,6 +47,8 @@ class CycleGAN:
     self.beta1 = beta1
     self.X_train_file = X_train_file
     self.Y_train_file = Y_train_file
+    self.constant_steps = constant_steps
+    self.decay_steps = decay_steps
 
     self.is_training = tf.placeholder_with_default(True, shape=[], name='is_training')
 
@@ -104,14 +108,14 @@ class CycleGAN:
 
   def optimize(self, G_loss, D_Y_loss, F_loss, D_X_loss):
     def make_optimizer(loss, variables, name='Adam'):
-      """ Adam optimizer with learning rate 0.0002 for the first 100k steps (~100 epochs)
+      """ Adam optimizer with learning rate 0.0002 for the first 100k steps (~100 epochs for apple2orange)
           and a linearly decaying rate that goes to zero over the next 100k steps
       """
       global_step = tf.Variable(0, trainable=False)
       starter_learning_rate = self.learning_rate
       end_learning_rate = 0.0
-      start_decay_step = 20000
-      decay_steps = 20000
+      start_decay_step = self.constant_steps
+      decay_steps = self.decay_steps
       beta1 = self.beta1
       learning_rate = (
           tf.where(

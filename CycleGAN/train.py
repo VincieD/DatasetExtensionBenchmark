@@ -20,6 +20,10 @@ tf.flags.DEFINE_integer('lambda2', 10,
                         'weight for backward cycle loss (Y->X->Y), default: 10')
 tf.flags.DEFINE_float('learning_rate', 2e-4,
                       'initial learning rate for Adam, default: 0.0002')
+tf.flags.DEFINE_integer('constant_steps', 100000,
+                      'Number of steps with constant learning rate for Adam, default: 100000')
+tf.flags.DEFINE_integer('decay_steps',100000 ,
+                      'Number of steps with linear decay learning rate for Adam, default: 100000')
 tf.flags.DEFINE_float('beta1', 0.5,
                       'momentum term of Adam, default: 0.5')
 tf.flags.DEFINE_float('pool_size', 50,
@@ -59,7 +63,9 @@ def train():
         lambda2=FLAGS.lambda2,
         learning_rate=FLAGS.learning_rate,
         beta1=FLAGS.beta1,
-        ngf=FLAGS.ngf
+        ngf=FLAGS.ngf,
+        constant_steps=FLAGS.constant_steps,
+        decay_steps=FLAGS.decay_steps
     )
     G_loss, D_Y_loss, F_loss, D_X_loss, fake_y, fake_x = cycle_gan.model()
     optimizers = cycle_gan.optimize(G_loss, D_Y_loss, F_loss, D_X_loss)
