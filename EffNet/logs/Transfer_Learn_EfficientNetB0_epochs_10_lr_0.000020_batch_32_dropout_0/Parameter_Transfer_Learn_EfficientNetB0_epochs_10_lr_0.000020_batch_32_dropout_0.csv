@@ -1,0 +1,10 @@
+Total Train Samples,1000
+Epochs,10
+Batch Size,32
+Loss Function,categorical_crossentropy
+Dropout Rate,0.2
+Optimizer,RMSProp
+Metrics,acc
+Test Score/Loss,1.0600300456086795
+Test Accuracy,0.6963563
+Learning Rate,2e-05

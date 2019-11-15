@@ -4,7 +4,8 @@ from tensorflow.keras import optimizers
 import os
 import glob
 import shutil
-import tensorflow as tf
+import csv
+import collections
 import sys
 import numpy as np
 from skimage.io import imread
@@ -12,9 +13,11 @@ import matplotlib.pyplot as plt
 from IPython.display import Image
 import random
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.callbacks import CSVLogger
 
 # Options: EfficientNetB0, EfficientNetB1, EfficientNetB2, EfficientNetB3
 # Higher the number, the more complex the model is.
+
 from efficientnet import EfficientNetB0 as Net
 from efficientnet import center_crop_and_resize, preprocess_input
 
@@ -23,9 +26,9 @@ import argparse
 parser = argparse.ArgumentParser(description='My efficient net for fine tuning and transfer learning')
 parser.add_argument('--input_dir', default=os.path.join(os.getcwd(),'data','INRIA_Person'), help='Input directory')
 parser.add_argument('--output_dir', default='', help='Output directory')
-parser.add_argument('--width', default=150, type=int, help='input image width')
-parser.add_argument('--height', default=150, type=int, help='input image height')
-parser.add_argument('--num_train', default=500, type=int, help='train size')
+parser.add_argument('--width', default=224, type=int, help='input image width')
+parser.add_argument('--height', default=224, type=int, help='input image height')
+parser.add_argument('--num_train', default=1000, type=int, help='train size')
 parser.add_argument('--num_test', default=100, type=int, help='test size')
 parser.add_argument('--num_val', default=100, type=int, help='val size')
 parser.add_argument('--epochs', default=10, type=int, help='number of epochs')
@@ -155,10 +158,9 @@ def load_data(args):
     print('total test pos images:', len(os.listdir(test_pos_dir)))
     print('total test neg images:', len(os.listdir(test_neg_dir)))
 
-    return train_dir, validation_dir
+    return train_path, test_path, test_path
 
-
-def train(args, train_dir, validation_dir):
+def train(args, train_dir, validation_dir, test_dir):
     batch_size = args.batch_size
     width = args.width
     height = args.height
@@ -166,12 +168,25 @@ def train(args, train_dir, validation_dir):
     NUM_TRAIN = args.num_train
     NUM_TEST = args.num_test
     dropout_rate = args.dropout
+    lr =args.lr
+    loss ='categorical_crossentropy'
     input_shape = (height, width, 3)
+
+    name = 'Transfer_Learn_EfficientNetB0_epochs_%i_lr_%f_batch_%i_dropout_%i' % (epochs,lr,batch_size,dropout_rate)
+    log_dir=os.path.join(os.getcwd(),'logs')
+    if not os.path.isdir(log_dir):
+        os.makedirs(log_dir)
+    filedir = os.path.join(log_dir,name)
+    if not os.path.isdir(filedir):
+        os.makedirs(filedir)
+    # else:
+    #     shutil.rmtree(filedir)
 
     # loading pretrained conv base model
 
     conv_base = Net(weights="imagenet", include_top=False, input_shape=input_shape)
 
+    # Build model
     model = models.Sequential()
     model.add(conv_base)
     model.add(layers.GlobalMaxPooling2D(name="gmp"))
@@ -191,7 +206,10 @@ def train(args, train_dir, validation_dir):
     # horizontal_flip=True,
     # fill_mode='nearest')
 
+
     # Note that the validation data should not be augmented!
+    val_datagen = ImageDataGenerator(rescale=1. / 255)
+    # Note that the test data should not be augmented!
     test_datagen = ImageDataGenerator(rescale=1. / 255)
 
     train_generator = train_datagen.flow_from_directory(
@@ -204,8 +222,15 @@ def train(args, train_dir, validation_dir):
         # Since we use categorical_crossentropy loss, we need categorical labels
         class_mode='categorical')
 
-    validation_generator = test_datagen.flow_from_directory(
+    validation_generator = val_datagen.flow_from_directory(
         validation_dir,
+        target_size=(height, width),
+        batch_size=batch_size,
+        shuffle=True,
+        class_mode='categorical')
+
+    test_generator = test_datagen.flow_from_directory(
+        test_dir,
         target_size=(height, width),
         batch_size=batch_size,
         shuffle=True,
@@ -224,24 +249,54 @@ def train(args, train_dir, validation_dir):
     print('This is the number of trainable layers '
           'before freezing the conv base:', len(model.trainable_weights))
 
-    #conv_base.trainable = False
+    conv_base.trainable = False
 
     print('This is the number of trainable layers '
           'after freezing the conv base:', len(model.trainable_weights))
 
-    model.compile(loss='categorical_crossentropy',
-                  optimizer=optimizers.RMSprop(lr=args.lr),
+    Savename_log = os.path.join(filedir,'Datalog_'+name+'.csv')
+    csv_logger = CSVLogger(Savename_log, append=False, separator=',')
+
+    model.compile(loss=loss,
+                  optimizer=optimizers.RMSprop(lr=lr),
                   metrics=['acc'])
+    print('train gen len '+str(len(train_generator)))
+    print('test gen len '+str(len(test_generator)))
     history = model.fit_generator(
         train_generator,
-        steps_per_epoch=NUM_TRAIN // batch_size,
         epochs=epochs,
         validation_data=validation_generator,
-        validation_steps=NUM_TEST // batch_size,
+        callbacks=[csv_logger],
         verbose=1,
-        use_multiprocessing=True,
+        use_multiprocessing=False,
         workers=4)
 
+    # score = model.evaluate(X_test, y_test, verbose=0, batch_size=batch_size)
+    score = model.evaluate_generator(test_generator, max_queue_size=10,
+                                     workers=4, use_multiprocessing=False)
+    # Save model and hyperparameter
+
+    Savename_model = os.path.join(filedir,'Model_'+name+'.h5')
+    model.save(Savename_model)
+
+    para_list = [('Total Train Samples', str(1000)),
+                 ('Epochs', epochs),
+                 ('Batch Size', batch_size),
+                 ('Loss Function', loss),
+                 ('Dropout Rate', dropout_rate),
+                 ('Optimizer', 'RMSProp'),
+                 ('Metrics', 'acc'),
+                 ('Test Score/Loss', score[0]),
+                 ('Test Accuracy', score[1]),
+                 ('Learning Rate', lr),
+                 ]
+    Parameterlist = collections.OrderedDict(para_list)
+    Savename_paralist = os.path.join(filedir,'Parameter_'+name+'.csv')
+    with open(Savename_paralist, 'w') as csv_file:
+        writer = csv.writer(csv_file, quoting=csv.QUOTE_NONE, dialect='excel', delimiter=',')
+        for key, value in Parameterlist.items():
+            writer.writerow([key, value])
+    # Plots
     acc = history.history['acc']
     val_acc = history.history['val_acc']
     loss = history.history['loss']
@@ -249,25 +304,31 @@ def train(args, train_dir, validation_dir):
 
     epochs_x = range(len(acc))
 
-    plt.plot(epochs_x, acc, 'bo', label='Training acc')
-    plt.plot(epochs_x, val_acc, 'b', label='Validation acc')
+    Plotname_acc = os.path.join(filedir,'Accuracy_'+name+'.png')
+    plt.plot(epochs_x, acc, label='Training acc')
+    plt.plot(epochs_x, val_acc, label='Validation acc')
     plt.title('Training and validation accuracy')
+    plt.ylabel('Accuracy', fontsize=9)
+    plt.xlabel('Epoch', fontsize=9)
     plt.legend()
+    plt.savefig(Plotname_acc + '.png', format='png')
 
     plt.figure()
-
-    plt.plot(epochs_x, loss, 'bo', label='Training loss')
-    plt.plot(epochs_x, val_loss, 'b', label='Validation loss')
+    Plotname_loss = os.path.join(filedir,'Loss_'+name+'.png')
+    plt.plot(epochs_x, loss, label='Training loss')
+    plt.plot(epochs_x, val_loss, label='Validation loss')
     plt.title('Training and validation loss')
+    plt.ylabel('Loss', fontsize=9)
+    plt.xlabel('Epoch', fontsize=9)
     plt.legend()
+    plt.savefig(Plotname_loss + '.png', format='png')
 
-    plt.show()
 
 
 def main(args):
 
-    train_dir, validation_dir = load_data(args)
-    train(args, train_dir, validation_dir)
+    train_dir, validation_dir, test_dir = load_data(args)
+    train(args, train_dir, validation_dir, test_dir)
 
 
 if __name__ == '__main__':

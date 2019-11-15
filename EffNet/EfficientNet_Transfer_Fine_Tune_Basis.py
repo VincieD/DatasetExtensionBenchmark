@@ -1,10 +1,11 @@
+
 from tensorflow.keras import models
 from tensorflow.keras import layers
 from tensorflow.keras import optimizers
 import os
 import glob
 import shutil
-import tensorflow as tf
+
 import sys
 import numpy as np
 from skimage.io import imread
