@@ -105,8 +105,7 @@ def train():
               )
         )
 
-        train_writer.add_summary(summary, step)
-        train_writer.flush()
+
 
         if step % 100 == 0:
           logging.info('-----------Step %d:-------------' % step)
@@ -114,6 +113,10 @@ def train():
           logging.info('  D_Y_loss : {}'.format(D_Y_loss_val))
           logging.info('  F_loss   : {}'.format(F_loss_val))
           logging.info('  D_X_loss : {}'.format(D_X_loss_val))
+            
+        if step % 500 == 0:
+          train_writer.add_summary(summary, step)
+          train_writer.flush()
 
         if step % 10000 == 0:
           save_path = saver.save(sess, checkpoints_dir + "/model.ckpt", global_step=step)
