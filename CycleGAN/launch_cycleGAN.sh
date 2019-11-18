@@ -12,10 +12,10 @@ module add cuda-9.0
 module add cudnn-7.0
  
 # activate virtual enviroment
-# on KONOS7
 cd ~/DatasetExtensionBenchmark
-virtualenv ENV_CYCLE_GAN_TF_1_12
 source ENV_CYCLE_GAN_TF_1_12/bin/activate
+cd DatasetExtensionBenchmark/CycleGAN/
 
 
-python train.py --X=data/tfrecords/summer.tfrecords --Y=data/tfrecords/winter.tfrecords --batch_size=1 --image_size=256 --constant_steps=50000 --decay_steps=50000
+
+python3 train.py --X=data/tfrecords/summer.tfrecords --Y=data/tfrecords/winter.tfrecords --batch_size=1 --image_size=256 --constant_steps=50000 --decay_steps=50000
