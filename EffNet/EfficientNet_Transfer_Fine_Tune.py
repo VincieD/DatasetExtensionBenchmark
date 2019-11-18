@@ -18,8 +18,15 @@ from tensorflow.keras.callbacks import CSVLogger
 # Options: EfficientNetB0, EfficientNetB1, EfficientNetB2, EfficientNetB3
 # Higher the number, the more complex the model is.
 
-from efficientnet import EfficientNetB0 as Net
-from efficientnet import center_crop_and_resize, preprocess_input
+# from efficientnet import EfficientNetB0 as Net
+# from efficientnet import center_crop_and_resize, preprocess_input
+
+# models can be build with Keras or Tensorflow frameworks
+# use keras and tfkeras modules respectively
+# efficientnet.keras / efficientnet.tfkeras
+import efficientnet.tfkeras as efn
+
+
 
 import argparse
 
@@ -31,7 +38,7 @@ parser.add_argument('--height', default=224, type=int, help='input image height'
 parser.add_argument('--num_train', default=1000, type=int, help='train size')
 parser.add_argument('--num_test', default=100, type=int, help='test size')
 parser.add_argument('--num_val', default=100, type=int, help='val size')
-parser.add_argument('--epochs', default=10, type=int, help='number of epochs')
+parser.add_argument('--epochs', default=13, type=int, help='number of epochs')
 parser.add_argument('--dropout', default=0.2, type=float, help='Dropout rate')
 parser.add_argument('--batch_size', default=32, type=int, help='Batch size')
 parser.add_argument('--lr', default=2e-5, type=float, help='Batch size')
@@ -183,18 +190,29 @@ def train(args, train_dir, validation_dir, test_dir):
     #     shutil.rmtree(filedir)
 
     # loading pretrained conv base model
-
-    conv_base = Net(weights="imagenet", include_top=False, input_shape=input_shape)
+    conv_base = efn.EfficientNetB0(weights="imagenet", include_top=False, input_shape=input_shape)
+    # conv_base = Net(weights="imagenet", include_top=False, input_shape=input_shape)
 
     # Build model
-    model = models.Sequential()
-    model.add(conv_base)
-    model.add(layers.GlobalMaxPooling2D(name="gmp"))
-    # model.add(layers.Flatten(name="flatten"))
+    # model = models.Sequential()
+    # model.add(conv_base)
+    # model.add(layers.GlobalMaxPooling2D(name="gmp"))
+    # # model.add(layers.Flatten(name="flatten"))
+    # if dropout_rate > 0:
+    #     model.add(layers.Dropout(dropout_rate, name="dropout_out"))
+    # # model.add(layers.Dense(256, activation='relu', name="fc1"))
+    # model.add(layers.Dense(2, activation="softmax", name="fc_out"))
+
+    x = conv_base.output
+    x = layers.GlobalAveragePooling2D(name="gap")(x)
     if dropout_rate > 0:
-        model.add(layers.Dropout(dropout_rate, name="dropout_out"))
-    # model.add(layers.Dense(256, activation='relu', name="fc1"))
-    model.add(layers.Dense(2, activation="softmax", name="fc_out"))
+        x = layers.Dropout(dropout_rate, name="dropout_out")(x)
+    # and a logistic layer -- let's say we have 200 classes
+    predictions = layers.Dense(2, activation='softmax', name="fc_out")(x)
+
+    # this is the model we will train
+    model = models.Model(inputs=conv_base.input, outputs=predictions)
+    model.summary()
 
     train_datagen = ImageDataGenerator(
         rescale=1. / 255)  # ,
@@ -236,14 +254,6 @@ def train(args, train_dir, validation_dir, test_dir):
         shuffle=True,
         class_mode='categorical')
 
-    # model.add(conv_base)
-    # model.add(layers.GlobalMaxPooling2D(name="gap"))
-    # # model.add(layers.Flatten(name="flatten"))
-    # if dropout_rate > 0:
-    #     model.add(layers.Dropout(dropout_rate, name="dropout_out"))
-    # # model.add(layers.Dense(256, activation='relu', name="fc1"))
-    # model.add(layers.Dense(2, activation='softmax', name="fc_out"))
-
     model.summary()
 
     print('This is the number of trainable layers '
@@ -276,7 +286,7 @@ def train(args, train_dir, validation_dir, test_dir):
                                      workers=4, use_multiprocessing=False)
     # Save model and hyperparameter
 
-    Savename_model = os.path.join(filedir,'Model_'+name+'.h5')
+    Savename_model = os.path.join(filedir,'Model_EfficientNetB0_Person.h5')
     model.save(Savename_model)
 
     para_list = [('Total Train Samples', str(1000)),
