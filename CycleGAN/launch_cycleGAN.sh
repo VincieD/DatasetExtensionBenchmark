@@ -1,7 +1,12 @@
 #!/bin/bash
-# Importing all necessary modules in order to setup the virtual enviroment and install TF and Keras as FrontEnd
- 
-#module add python-3.6.2-gcc
+#PBS -N v2v-train-comref-cycleGAN_256_winter_summer
+#PBS -q gpu
+#PBS -l walltime=24:00:00
+
+#PBS -l select=1:ncpus=6:ngpus=1:cluster=konos:scratch_local=0gb:mem=32gb
+#PBS -j oe
+#PBS -m a
+
 module add python36-modules-gcc
 module add cuda-9.0
 module add cudnn-7.0
