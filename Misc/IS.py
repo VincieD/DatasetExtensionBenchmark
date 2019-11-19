@@ -1,3 +1,5 @@
+# Taken from here: https://machinelearningmastery.com/how-to-implement-the-inception-score-from-scratch-for-evaluating-generated-images/
+
 # calculate inception score for cifar-10 in Keras
 from math import floor
 from numpy import ones
