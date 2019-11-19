@@ -1,0 +1,1 @@
+python .\create_DAGAN_database.py --input_dir C:\Users\qxy9300\Documents\MA\01_Dataset\INRIA_Person_Dataset_Train --output_file C:\Users\qxy9300\Documents\MA\01_Dataset\INRIA_Person_Dataset_Train\DAGAN_ped_database.npy

@@ -1,0 +1,2 @@
+
+python train_pedestrian_dagan.py --epochs 200 --batch_size 32 --generator_inner_layers 3 --discriminator_inner_layers 5 --num_generations 64 --experiment_title train_pedestrian128 --num_of_gpus 1 --z_dim 100 --dropout_rate_value 0.5
