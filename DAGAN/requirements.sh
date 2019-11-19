@@ -34,7 +34,8 @@ pip3 install --upgrade tensorflow-gpu==1.12.0
 python3 -c "import tensorflow as tf; tf.enable_eager_execution(); print(tf.reduce_sum(tf.random_normal([1000, 1000])))"
  
 # Step #2: Install Keras
-pip3 install numpy scipy
+pip3 install numpy 
+pip3 install scipy
 pip3 install scikit-learn
 pip3 install pillow
 pip3 install h5py
