@@ -1,3 +1,6 @@
+# Taken from here: https://machinelearningmastery.com/how-to-implement-the-frechet-inception-distance-fid-from-scratch/
+
+
 # example of calculating the frechet inception distance in Keras for cifar10
 import numpy
 from numpy import cov
