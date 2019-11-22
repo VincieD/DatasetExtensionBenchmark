@@ -123,6 +123,8 @@ def train():
           logging.info("Model saved in file: %s" % save_path)
 
         step += 1
+        if step > FLAGS.constant_steps+FLAGS.decay_steps:
+            coord.request_stop()
 
     except KeyboardInterrupt:
       logging.info('Interrupted')
