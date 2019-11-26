@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 from IPython.display import Image
 import random
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.callbacks import CSVLogger
+from tensorflow.keras.callbacks import CSVLogger, TensorBoard
+from tensorflow import keras
 
 # Options: EfficientNetB0, EfficientNetB1, EfficientNetB2, EfficientNetB3
 # Higher the number, the more complex the model is.
@@ -31,14 +32,14 @@ import efficientnet.tfkeras as efn
 import argparse
 
 parser = argparse.ArgumentParser(description='My efficient net for fine tuning and transfer learning')
-parser.add_argument('--input_dir', default=os.path.join(os.getcwd(),'data','INRIA_Person'), help='Input directory')
+parser.add_argument('--input_dir', default=os.path.join(os.getcwd(),'data'), help='Input directory')
 parser.add_argument('--output_dir', default='', help='Output directory')
 parser.add_argument('--width', default=224, type=int, help='input image width')
 parser.add_argument('--height', default=224, type=int, help='input image height')
 parser.add_argument('--num_train', default=1000, type=int, help='train size')
 parser.add_argument('--num_test', default=100, type=int, help='test size')
 parser.add_argument('--num_val', default=100, type=int, help='val size')
-parser.add_argument('--epochs', default=13, type=int, help='number of epochs')
+parser.add_argument('--epochs', default=350, type=int, help='number of epochs')
 parser.add_argument('--dropout', default=0.2, type=float, help='Dropout rate')
 parser.add_argument('--batch_size', default=32, type=int, help='Batch size')
 parser.add_argument('--lr', default=2e-5, type=float, help='Batch size')
@@ -54,8 +55,8 @@ def load_data(args):
     # dataset was uncompressed
     original_dataset_dir = args.input_dir #os.path.join(os.getcwd(), 'data', 'INRIA_Person')
 
-    train_path = os.path.join(original_dataset_dir,'Train')
-    test_path = os.path.join(original_dataset_dir,'Test')
+    train_path = os.path.join(original_dataset_dir,'INRIA_Person_Dataset_Train_256')
+    test_path = os.path.join(original_dataset_dir,'INRIA_Person_Dataset_Test_256')
 
     pos_train_images = glob.glob(os.path.join(train_path, "pos", '*.png'))
     neg_train_images = glob.glob(os.path.join(train_path, "neg", '*.png'))
@@ -69,101 +70,6 @@ def load_data(args):
     random.shuffle(neg_val_test_images)
 
     print("total pos images: {}\n\rtotal neg images: {}".format(len(pos_train_images)+len(pos_val_test_images), len(neg_train_images)+len(neg_val_test_images)))
-
-
-    # pos_val_images = pos_val_test_images[:args.num_val]
-    # pos_test_images = pos_val_test_images[args.num_val:args.num_test]
-    # neg_val_images = neg_val_test_images[:args.num_val]
-    # neg_test_images = neg_val_test_images[args.num_val:args.num_test]
-
-
-
-    # The directory where we will
-    # store our smaller dataset
-    base_dir = os.path.join(os.getcwd(), 'data', 'neg_vs_pos_small')
-    if os.path.isdir(base_dir):
-
-        shutil.rmtree(base_dir)
-    os.makedirs(base_dir, exist_ok=True)
-
-    # Directories for our training,
-    # validation and test splits
-    train_dir = os.path.join(base_dir, 'train')
-    os.makedirs(train_dir, exist_ok=True)
-    validation_dir = os.path.join(base_dir, 'validation')
-    os.makedirs(validation_dir, exist_ok=True)
-    test_dir = os.path.join(base_dir, 'test')
-    os.makedirs(test_dir, exist_ok=True)
-
-    # Directory with our training pos pictures
-    train_pos_dir = os.path.join(train_dir, 'pos')
-    os.makedirs(train_pos_dir, exist_ok=True)
-
-    # Directory with our training neg pictures
-    train_neg_dir = os.path.join(train_dir, 'neg')
-    os.makedirs(train_neg_dir, exist_ok=True)
-
-    # Directory with our validation pos pictures
-    validation_pos_dir = os.path.join(validation_dir, 'pos')
-    os.makedirs(validation_pos_dir, exist_ok=True)
-
-    # Directory with our validation neg pictures
-    validation_neg_dir = os.path.join(validation_dir, 'neg')
-    os.makedirs(validation_neg_dir, exist_ok=True)
-
-    # Directory with our validation pos pictures
-    test_pos_dir = os.path.join(test_dir, 'pos')
-    os.makedirs(test_pos_dir, exist_ok=True)
-
-    # Directory with our validation neg pictures
-    test_neg_dir = os.path.join(test_dir, 'neg')
-    os.makedirs(test_neg_dir, exist_ok=True)
-
-    # Copy first NUM_TRAIN//2 pos images to train_pos_dir
-    fnames = pos_train_images[:NUM_TRAIN // 2]
-    for fname in fnames:
-        dst = os.path.join(train_pos_dir, os.path.basename(fname))
-        shutil.copyfile(fname, dst)
-
-    offset = NUM_TRAIN // 2
-    # Copy next NUM_TEST //2 pos images to validation_pos_dir
-    fnames = pos_val_test_images[:NUM_TEST // 2]
-    for fname in fnames:
-        dst = os.path.join(validation_pos_dir, os.path.basename(fname))
-        shutil.copyfile(fname, dst)
-    offset = offset + NUM_TEST // 2
-    # Copy next NUM_TRAIN//2 pos images to test_pos_dir
-    fnames = pos_val_test_images[NUM_TEST // 2 : NUM_TEST]
-    for fname in fnames:
-        dst = os.path.join(test_pos_dir, os.path.basename(fname))
-        shutil.copyfile(fname, dst)
-
-    # Copy first NUM_TRAIN//2 neg images to train_neg_dir
-    fnames = neg_train_images[:NUM_TRAIN // 2]
-    for fname in fnames:
-        dst = os.path.join(train_neg_dir, os.path.basename(fname))
-        shutil.copyfile(fname, dst)
-
-    offset = NUM_TRAIN // 2
-    # Copy next NUM_TEST // 2 neg images to validation_neg_dir
-    fnames = neg_val_test_images[:NUM_TEST // 2]
-    for fname in fnames:
-        dst = os.path.join(validation_neg_dir, os.path.basename(fname))
-        shutil.copyfile(fname, dst)
-    offset = offset + NUM_TEST // 2
-
-    # Copy next NUM_TEST // 2 neg images to test_neg_dir
-    fnames = neg_val_test_images[NUM_TEST // 2 : NUM_TEST]
-    for fname in fnames:
-        dst = os.path.join(test_neg_dir, os.path.basename(fname))
-        shutil.copyfile(fname, dst)
-
-    print('total training pos images:', len(os.listdir(train_pos_dir)))
-    print('total training neg images:', len(os.listdir(train_neg_dir)))
-    print('total validation pos images:', len(os.listdir(validation_pos_dir)))
-    print('total validation neg images:', len(os.listdir(validation_neg_dir)))
-    print('total test pos images:', len(os.listdir(test_pos_dir)))
-    print('total test neg images:', len(os.listdir(test_neg_dir)))
 
     return train_path, test_path, test_path
 
@@ -188,6 +94,11 @@ def train(args, train_dir, validation_dir, test_dir):
         os.makedirs(filedir)
     # else:
     #     shutil.rmtree(filedir)
+
+    tensorboard = TensorBoard(log_dir=filedir, histogram_freq=100, batch_size=32, write_graph=True,
+                                               write_grads=False, write_images=True, embeddings_freq=0,
+                                               embeddings_layer_names=None, embeddings_metadata=None,
+                                               embeddings_data=None, update_freq='epoch')
 
     # loading pretrained conv base model
     conv_base = efn.EfficientNetB0(weights="imagenet", include_top=False, input_shape=input_shape)
@@ -254,15 +165,31 @@ def train(args, train_dir, validation_dir, test_dir):
         shuffle=True,
         class_mode='categorical')
 
-    model.summary()
+    #model.summary()
+
+    print('total training images:', str(train_generator.samples))
+    print('total validation images:', str(validation_generator.samples))
+    print('total test images:', str(test_generator.samples))
 
     print('This is the number of trainable layers '
           'before freezing the conv base:', len(model.trainable_weights))
 
-    conv_base.trainable = False
+    conv_base.trainable = True
+
+    layer_name = 'block7a_se_excite'
+
+    set_trainable = False
+    for layer in conv_base.layers:
+        if layer.name == layer_name:
+            print('Layers are trainable from     ------> '+layer_name+'     onwards')
+            set_trainable = True
+        if set_trainable:
+            layer.trainable = True
+        else:
+            layer.trainable = False
 
     print('This is the number of trainable layers '
-          'after freezing the conv base:', len(model.trainable_weights))
+          'after freezing some layers:', len(model.trainable_weights))
 
     Savename_log = os.path.join(filedir,'Datalog_'+name+'.csv')
     csv_logger = CSVLogger(Savename_log, append=False, separator=',')
@@ -276,7 +203,7 @@ def train(args, train_dir, validation_dir, test_dir):
         train_generator,
         epochs=epochs,
         validation_data=validation_generator,
-        callbacks=[csv_logger],
+        callbacks=[csv_logger, tensorboard],
         verbose=1,
         use_multiprocessing=False,
         workers=4)

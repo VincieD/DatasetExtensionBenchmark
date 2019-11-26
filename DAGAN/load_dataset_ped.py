@@ -39,7 +39,7 @@ class DATA_LOADER():
         self.pathes = {}
         self.classes = []
         self.dataSetLen = 0
-        self.minNumberOfImages = 100
+        self.minNumberOfImages = 10
         self.sample_list = []
 
         if (self.labels == True):
@@ -115,10 +115,10 @@ class DATA_LOADER():
                 self.X_samples[allIndex, :, :, 0] = ((img_grey.astype(np.float32) / 255) - 0.5) * 2
 
             else:
-                # self.X_samples[allIndex,:,:,:] = ((img_rgb.astype(np.float32)/ 255) - 0.5) * 2
+                self.X_samples[allIndex,:,:,:] = ((img_rgb.astype(np.float32)/ 255) - 0.5)
                 # plt.imshow(img_rgb)
                 # plt.show()
-                self.X_samples[allIndex, :, :, :] = img_rgb.astype(np.float32)
+                # self.X_samples[allIndex, :, :, :] = img_rgb.astype(np.float32)
 
             # print(img.shape)
             allIndex += 1
