@@ -3,6 +3,8 @@ import os
 np.random.seed(2591)
 from load_dataset_ped import DATA_LOADER as data_loader
 
+from utils.parser_util import get_args
+
 
 class DAGANDataset(object):
     def __init__(self, batch_size, last_training_class_index, reverse_channels, num_of_gpus, gen_batches):
@@ -342,6 +344,7 @@ class PedestrianDAGANDataset(DAGANDataset):
     def __init__(self, batch_size, last_training_class_index, reverse_channels, num_of_gpus, gen_batches):
         super(PedestrianDAGANDataset, self).__init__(batch_size, last_training_class_index, reverse_channels,
                                                              num_of_gpus, gen_batches)
+
     def load_dataset(self, last_training_class_index):
         # x = np.load("datasets/DAGAN_ped_database.npy")
         #         # x_temp = []
@@ -353,10 +356,14 @@ class PedestrianDAGANDataset(DAGANDataset):
         #         # # self.x = self.x / np.max(self.x)
         #         # x_train, x_test, x_val = self.x[:25], self.x[25:35], self.x[35:45]
         #         # x_train = x_train[:last_training_class_index]
+        batch_size, num_gpus, args = get_args()
+        #print(args.data_dir)
+        data_dir = args.data_dir
+        im_size = args.im_size
 
-        dataloader = data_loader(directory=os.path.join(os.getcwd(), 'datasets', 'INRIA_Person_Dataset_Train_128'),
-                                 grayScale=False, labels=False, img_rows=64, img_cols=64)
-        num_samples, x_train, x_val, x_test = dataloader.loadImages(train_val_test_split=[0.8, 0.1, 0.1])
+        dataloader = data_loader(data_dir,
+                                 grayScale=False, labels=False, img_rows=im_size, img_cols=im_size)
+        num_samples, x_train, x_val, x_test = dataloader.loadImages(train_val_test_split=[0.96, 0.02, 0.02])
 
         print('---------> DATA LOADED')
         return x_train, x_val, x_test

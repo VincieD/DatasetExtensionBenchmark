@@ -9,9 +9,12 @@ def get_args():
     parser = argparse.ArgumentParser(description='Welcome to GAN-Shot-Learning script')
     parser.add_argument('--epochs', nargs="?", type=int, default=200,
                         help='Number of epochs for training')
-    parser.add_argument('--dataset', nargs="?", type=str, default="",
-                        help='Dataset directory')
+
     parser.add_argument('--batch_size', nargs="?", type=int, default=32, help='batch_size for experiment')
+    parser.add_argument('--data_dir', nargs="?", type=str, default="",
+                        help='Dataset directory')
+    parser.add_argument('--im_size', nargs="?", type=int, default=64,
+                        help='Input image size')
     parser.add_argument('--discriminator_inner_layers', nargs="?", type=int, default=1,
                         help='Number of inner layers per multi layer in the discriminator')
     parser.add_argument('--generator_inner_layers', nargs="?", type=int, default=1,
