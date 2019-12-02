@@ -1,0 +1,1 @@
+python viz_occlusion.py --img C:/Users/qxy9300/Documents/MA/01_Dataset/dataset_tobi_vaclav_campus/pos_256/IMG_20191126_130143.jpg --weights_path D:/EffNet/logs/Transfer_Learn_EfficientNetB0_epochs_350_lr_0.000020_batch_32_dropout_0/Model_EfficientNetB0_Person.h5 --size 224 --occ_size 40 --pixel 0 --stride 10 --norm 1 --percentile 25

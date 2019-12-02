@@ -24,7 +24,7 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser(description='My efficient net visualization')
-parser.add_argument('--input_dir', default=os.path.join(os.getcwd(),'data','INRIA_Person_Dataset_Test_256'), help='Input image directory class folders in it')
+parser.add_argument('--input_dir', default=os.path.join(os.getcwd(),'data','dataset_tobi_vaclav_campus_256'), help='Input image directory class folders in it')
 parser.add_argument('--output_dir', default=os.path.join(os.getcwd(),'logs','wrong_predictions'), help='Output directory')
 parser.add_argument('--model_file', default=os.path.join(os.getcwd(),'logs','Transfer_Learn_EfficientNetB0_epochs_350_lr_0.000020_batch_32_dropout_0','Model_EfficientNetB0_Person.h5'), help='Model file path')
 parser.add_argument('--width', default=224, type=int, help='input image width')
@@ -56,11 +56,11 @@ def prediction(args):
 
     prediction = model.predict_generator(test_generator, steps=None, callbacks=None, max_queue_size=10, workers=1, use_multiprocessing=False,
                       verbose=1)
-    #score = model.evaluate_generator(test_generator, steps=None, callbacks=None, max_queue_size=10, workers=1, use_multiprocessing=False, verbose=1)
+    score = model.evaluate_generator(test_generator, steps=None, callbacks=None, max_queue_size=10, workers=1, use_multiprocessing=False, verbose=1)
     pred = np.argmax(prediction,axis=1)
 
     pred_class = np.amax(prediction,axis=1)
-    #print(score)
+    print(score)
     image_list=[]
     prob_list=[]
     for i in range(len(test_generator.labels)):
@@ -68,10 +68,11 @@ def prediction(args):
             image_list.append(test_generator.filepaths[i])
             prob_list.append(pred_class[i])
 
-    print(image_list)
+    #print(image_list)
 
     for i, file in enumerate(image_list):
-        dst =os.path.join(args.output_dir,str(prob_list[i])+'.png')
+        prob = 1 - prob_list[i]
+        dst =os.path.join(args.output_dir,str(prob)+'.png')
         shutil.copy(file, dst)
 
 
@@ -84,9 +85,17 @@ def prediction(args):
     # Convert the dictionary into DataFrame
     df = pd.DataFrame(data)
 
-    export_csv = df.to_csv(r'D:\EffNet\pred_results.csv', index=None, header=True)
+    export_csv = df.to_csv(r'D:\EffNet\pred_results_tobi_vaclav.csv', index=None, header=True)
 
     print('hello')
+
+# def predict_singe_image(args):
+#     model = load_model(args.model_file)
+#     model.summary()
+#
+#
+#     '.\data\dataset_tobi_vaclav_campus_256\pos\IMG_20191126_125746.jpg'
+#     prediction = model.predict('')
 
 def main():
     prediction(args)
