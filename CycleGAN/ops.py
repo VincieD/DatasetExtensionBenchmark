@@ -30,6 +30,7 @@ def c7s1_k(input, k, reuse=False, norm='instance', activation='relu', is_trainin
       output = tf.nn.relu(normalized)
     if activation == 'tanh':
       output = tf.nn.tanh(normalized)
+    tf.summary.histogram('weights', weights)
     return output
 
 def dk(input, k, reuse=False, norm='instance', is_training=True, name=None):

@@ -11,15 +11,15 @@ def get_args():
                         help='Number of epochs for training')
 
     parser.add_argument('--batch_size', nargs="?", type=int, default=32, help='batch_size for experiment')
-    parser.add_argument('--data_dir', nargs="?", type=str, default="",
+    parser.add_argument('--data_dir', nargs="?", type=str, default="F:/DAGAN-master/datasets/INRIA_Person_Dataset_Train_256",
                         help='Dataset directory')
     parser.add_argument('--im_size', nargs="?", type=int, default=64,
                         help='Input image size')
-    parser.add_argument('--discriminator_inner_layers', nargs="?", type=int, default=1,
+    parser.add_argument('--discriminator_inner_layers', nargs="?", type=int, default=5,
                         help='Number of inner layers per multi layer in the discriminator')
-    parser.add_argument('--generator_inner_layers', nargs="?", type=int, default=1,
+    parser.add_argument('--generator_inner_layers', nargs="?", type=int, default=3,
                         help='Number of inner layers per multi layer in the generator')
-    parser.add_argument('--experiment_title', nargs="?", type=str, default="omniglot_dagan_experiment",
+    parser.add_argument('--experiment_title', nargs="?", type=str, default="pedestrian_dagan_experiment",
                         help='Experiment name')
     parser.add_argument('--continue_from_epoch', nargs="?", type=int, default=-1,
                         help='continue from checkpoint of epoch')

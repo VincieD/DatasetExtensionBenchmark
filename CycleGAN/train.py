@@ -31,10 +31,14 @@ tf.flags.DEFINE_float('pool_size', 50,
 tf.flags.DEFINE_integer('ngf', 64,
                         'number of gen filters in first conv layer, default: 64')
 
-tf.flags.DEFINE_string('X', 'data/tfrecords/apple.tfrecords',
-                       'X tfrecords file for training, default: data/tfrecords/apple.tfrecords')
-tf.flags.DEFINE_string('Y', 'data/tfrecords/orange.tfrecords',
-                       'Y tfrecords file for training, default: data/tfrecords/orange.tfrecords')
+tf.flags.DEFINE_string('X', 'data/tfrecords/summer_2k_ped.tfrecords',
+                       'X tfrecords file for training, default: data/tfrecords/summer_2k_ped.tfrecords')
+tf.flags.DEFINE_string('Y', 'data/tfrecords/winter_2k_ped.tfrecords',
+                       'Y tfrecords file for training, default: data/tfrecords/winter_2k_ped.tfrecords')
+
+tf.flags.DEFINE_string('fix', 'data/tfrecords/summer_1img.tfrecords',
+                       'fix tfrecords file with some images for observation of training over the iterations, default: data/tfrecords/summer_1img.tfrecords')
+
 tf.flags.DEFINE_string('load_model', None,
                         'folder of saved model that you wish to continue training (e.g. 20170602-1936), default: None')
 
@@ -55,6 +59,7 @@ def train():
     cycle_gan = CycleGAN(
         X_train_file=FLAGS.X,
         Y_train_file=FLAGS.Y,
+        fix_train_file=FLAGS.fix,
         batch_size=FLAGS.batch_size,
         image_size=FLAGS.image_size,
         use_lsgan=FLAGS.use_lsgan,

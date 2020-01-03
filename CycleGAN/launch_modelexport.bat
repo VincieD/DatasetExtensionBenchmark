@@ -1,1 +1,1 @@
-python export_graph.py --checkpoint_dir checkpoints/20191125-1615 --XtoY_model summer2winter.pb --YtoX_model winter2summer.pb --image_size 256 --ngf 64 --norm instance
+python export_graph.py --checkpoint_dir checkpoints/20191203-1124 --XtoY_model summer2winter_flip.pb --YtoX_model winter2summer_flip.pb --image_size 256 --ngf 64 --norm instance

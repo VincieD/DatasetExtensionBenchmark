@@ -1,2 +1,2 @@
 
-python batch_inference.py --model pretrained/summer2winter.pb --input_dir D:\CycleGAN-TensorFlow\data\summer2winter_road_256_small\testA --output_dir C:\Users\qxy9300\Documents\MA\05_Program\DatasetExtensionBenchmark\CycleGAN\samples\20191125_summer2winter_testA --image_size 256
+python batch_inference.py --model pretrained/summer2winter_flip.pb --input_dir C:\Users\qxy9300\Documents\MA\01_Dataset\INRIA_Person_Dataset_Train_256_summer_winter\neg_summer --output_dir C:\Users\qxy9300\Documents\MA\05_Program\DatasetExtensionBenchmark\CycleGAN\samples\20191203_summer2winter_neg --image_size 256

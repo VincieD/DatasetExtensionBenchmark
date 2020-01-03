@@ -22,10 +22,12 @@ class DAGANDataset(object):
         self.batch_size = batch_size
         self.reverse_channels = reverse_channels
         self.test_samples_per_label = gen_batches
+        #print('len(self.x_val[0]',len(self.x_val))
         # self.choose_gen_labels = np.random.choice(self.x_val.shape[0], self.batch_size, replace=True)
-        self.choose_gen_samples = np.random.choice(len(self.x_val[0]), self.test_samples_per_label*self.batch_size, replace=True)
+        self.choose_gen_samples = np.random.choice(len(self.x_val), self.test_samples_per_label*self.batch_size, replace=True)
         # self.x_gen = self.x_val[self.choose_gen_labels]
         self.x_gen = self.x_val[self.choose_gen_samples]
+        print(self.x_gen.shape)
         # self.x_gen = np.reshape(self.x_gen, newshape=(self.x_gen.shape[0] * self.x_gen.shape[1],
         #                                               self.x_gen.shape[2], self.x_gen.shape[3], self.x_gen.shape[4]))
         self.gen_batches = gen_batches
@@ -114,7 +116,7 @@ class DAGANDataset(object):
 
         x_input_batch_a = np.array(x_input_batch_a)
         x_input_batch_b = np.array(x_input_batch_b)
-        print("Batch shape {}".format(x_input_batch_a.shape))
+        #print("Batch shape {}".format(x_input_batch_a.shape))
 
         return self.preprocess_data(x_input_batch_a), self.preprocess_data(x_input_batch_b)
 
@@ -265,7 +267,7 @@ class DAGANImbalancedDataset(DAGANDataset):
 
         x_input_batch_a = np.array(x_input_batch_a)
         x_input_batch_b = np.array(x_input_batch_b)
-        print("Batch shape {}".format(x_input_batch_a.shape))
+        #print("Batch shape {}".format(x_input_batch_a.shape))
 
         return self.preprocess_data(x_input_batch_a), self.preprocess_data(x_input_batch_b)
 
@@ -366,7 +368,8 @@ class PedestrianDAGANDataset(DAGANDataset):
         num_samples, x_train, x_val, x_test = dataloader.loadImages(train_val_test_split=[0.96, 0.02, 0.02])
 
         print('---------> DATA LOADED')
-        return x_train, x_val, x_test
+        print(x_train.shape,x_val.shape, x_test.shape)
+        return x_train, x_test, x_val
 
 
 class VGGFaceDAGANDataset(DAGANDataset):

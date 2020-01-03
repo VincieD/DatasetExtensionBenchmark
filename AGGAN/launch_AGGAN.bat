@@ -1,0 +1,1 @@
+python main.py  --to_train=1 --log_dir=./output/AGGAN/exp_001 --config_filename=./configs/exp_001.json

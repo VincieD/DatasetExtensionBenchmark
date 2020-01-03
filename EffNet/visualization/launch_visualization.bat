@@ -1,0 +1,3 @@
+
+
+python visualization.py --occ=1 --cam=0 --size=224 --occ_size=40 --pixel=0 --stride=10 --norm=1 --percentile=25 --input_dir=C:\Users\qxy9300\Desktop\test\pos --target_class=1 --output_dir=F:\EffNet\visualization\CAM_images\wrong_predicted_img --model_file=F:\EffNet\logs\Transfer_Learn_EfficientNetB0_epochs_300_lr_0.000020_batch_32_dropout_0_tf_preprocess\Model_EfficientNetB0_Person.h5 --width=224 --height=224 

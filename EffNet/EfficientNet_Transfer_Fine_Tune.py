@@ -14,6 +14,7 @@ from IPython.display import Image
 import random
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import CSVLogger, TensorBoard
+#from tensorflow.keras.applications.mobilenet import preprocess_input
 from tensorflow import keras
 
 # Options: EfficientNetB0, EfficientNetB1, EfficientNetB2, EfficientNetB3
@@ -26,6 +27,9 @@ from tensorflow import keras
 # use keras and tfkeras modules respectively
 # efficientnet.keras / efficientnet.tfkeras
 import efficientnet.tfkeras as efn
+from tensorflow.keras.applications.mobilenet import preprocess_input
+from tensorflow.keras import backend
+
 
 
 
@@ -39,13 +43,15 @@ parser.add_argument('--height', default=224, type=int, help='input image height'
 parser.add_argument('--num_train', default=1000, type=int, help='train size')
 parser.add_argument('--num_test', default=100, type=int, help='test size')
 parser.add_argument('--num_val', default=100, type=int, help='val size')
-parser.add_argument('--epochs', default=350, type=int, help='number of epochs')
+parser.add_argument('--epochs', default=400, type=int, help='number of epochs')
 parser.add_argument('--dropout', default=0.2, type=float, help='Dropout rate')
 parser.add_argument('--batch_size', default=32, type=int, help='Batch size')
 parser.add_argument('--lr', default=2e-5, type=float, help='Batch size')
 
 args = parser.parse_args()
 
+def preprocess(x):
+    return x/255
 
 def load_data(args):
     NUM_TRAIN = args.num_train
@@ -95,7 +101,7 @@ def train(args, train_dir, validation_dir, test_dir):
     # else:
     #     shutil.rmtree(filedir)
 
-    tensorboard = TensorBoard(log_dir=filedir, histogram_freq=100, batch_size=32, write_graph=True,
+    tensorboard = TensorBoard(log_dir=filedir, histogram_freq=50, batch_size=32, write_graph=True,
                                                write_grads=False, write_images=True, embeddings_freq=0,
                                                embeddings_layer_names=None, embeddings_metadata=None,
                                                embeddings_data=None, update_freq='epoch')
@@ -119,14 +125,14 @@ def train(args, train_dir, validation_dir, test_dir):
     if dropout_rate > 0:
         x = layers.Dropout(dropout_rate, name="dropout_out")(x)
     # and a logistic layer -- let's say we have 200 classes
-    predictions = layers.Dense(2, activation='softmax', name="fc_out")(x)
+    x = layers.Dense(2, activation='linear', name="fc_out")(x)
+    predictions = layers.Activation('softmax',name='final_act')(x)
 
     # this is the model we will train
     model = models.Model(inputs=conv_base.input, outputs=predictions)
     model.summary()
 
-    train_datagen = ImageDataGenerator(
-        rescale=1. / 255)  # ,
+    train_datagen = ImageDataGenerator(preprocessing_function=preprocess)
     # rotation_range=40,
     # width_shift_range=0.2,
     # height_shift_range=0.2,
@@ -137,9 +143,9 @@ def train(args, train_dir, validation_dir, test_dir):
 
 
     # Note that the validation data should not be augmented!
-    val_datagen = ImageDataGenerator(rescale=1. / 255)
+    val_datagen = ImageDataGenerator(preprocessing_function=preprocess)
     # Note that the test data should not be augmented!
-    test_datagen = ImageDataGenerator(rescale=1. / 255)
+    test_datagen = ImageDataGenerator(preprocessing_function=preprocess)
 
     train_generator = train_datagen.flow_from_directory(
         # This is the target directory
@@ -226,6 +232,7 @@ def train(args, train_dir, validation_dir, test_dir):
                  ('Test Score/Loss', score[0]),
                  ('Test Accuracy', score[1]),
                  ('Learning Rate', lr),
+                 ('Data', 'INRIA with own data together')
                  ]
     Parameterlist = collections.OrderedDict(para_list)
     Savename_paralist = os.path.join(filedir,'Parameter_'+name+'.csv')

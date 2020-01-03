@@ -173,6 +173,7 @@ class DAGAN:
                 maxval=1.
             )
             input_shape = input_a.get_shape()
+            print(input_shape)
             input_shape = [int(n) for n in input_shape]
             differences_g = x_g - input_b
             differences_g = tf.reshape(differences_g, (self.batch_size, input_shape[1]*input_shape[2]*input_shape[3]))
@@ -220,7 +221,7 @@ class DAGAN:
                                                          colocate_gradients_with_ops=True)
         return opt_ops
 
-    def init_train(self, learning_rate=1e-4, beta1=0.0, beta2=0.9):
+    def init_train(self, learning_rate=5e-5, beta1=0.0, beta2=0.7):
         """
         Initialize training by constructing the summary, loss and ops
         :param learning_rate: The learning rate for the Adam optimizer
@@ -247,8 +248,12 @@ class DAGAN:
 
         for key in list(losses.keys()):
             losses[key] = tf.reduce_mean(losses[key], axis=0)
-            opts[key.replace("losses", "opt")] = tf.train.AdamOptimizer(beta1=beta1, beta2=beta2,
+            if key == 'g_losses':
+                opts[key.replace("losses", "opt")] = tf.train.AdamOptimizer(beta1=beta1, beta2=beta2,
                                                                             learning_rate=learning_rate)
+            else:
+                opts[key.replace("losses", "opt")] = tf.train.AdamOptimizer(beta1=0, beta2=0.7,
+                                                                            learning_rate=2e-4)
 
         summary = tf.summary.merge_all()
         apply_grads_ops = self.train(opts=opts, losses=losses)

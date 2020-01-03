@@ -1,0 +1,1 @@
+python create_cyclegan_dataset.py --image_path_a=.\input\20191219_INRIA_256_full_summer_winter\trainA --image_path_b=.\input\20191219_INRIA_256_full_summer_winter\trainB  --dataset_name="20191219_INRIA_256_full_summer_winter" --do_shuffle=1

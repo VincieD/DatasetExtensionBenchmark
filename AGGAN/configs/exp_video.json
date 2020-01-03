@@ -1,0 +1,6 @@
+{
+  "description": "Testing with trained model.",
+  "network_version": "pytorch",
+  "dataset_name": "video_sum_win",
+  "do_flipping": 0
+}

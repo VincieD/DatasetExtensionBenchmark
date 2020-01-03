@@ -1,0 +1,1 @@
+ python main.py --to_train=0 --switch=30 --threshold=0.1 --log_dir=./output/AGGAN/exp_016 --config_filename=./configs/exp_003_test.json --checkpoint_dir=C:\Users\qxy9300\Documents\MA\02_Results\AGGAN_logs\exp_016\20191221-171725_switch30_thres_0.1

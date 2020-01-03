@@ -11,6 +11,7 @@ class CycleGAN:
   def __init__(self,
                X_train_file='',
                Y_train_file='',
+               fix_train_file='',
                batch_size=1,
                image_size=256,
                use_lsgan=True,
@@ -47,6 +48,7 @@ class CycleGAN:
     self.beta1 = beta1
     self.X_train_file = X_train_file
     self.Y_train_file = Y_train_file
+    self.fix_train_file = fix_train_file
     self.constant_steps = constant_steps
     self.decay_steps = decay_steps
 
@@ -70,8 +72,12 @@ class CycleGAN:
     Y_reader = Reader(self.Y_train_file, name='Y',
         image_size=self.image_size, batch_size=self.batch_size)
 
+    fixed_reader = Reader(self.fix_train_file, name='fix',
+                      image_size=self.image_size, batch_size=self.batch_size)
+
     x = X_reader.feed()
     y = Y_reader.feed()
+    fix = fixed_reader.feed()
 
     cycle_loss = self.cycle_consistency_loss(self.G, self.F, x, y)
 
@@ -103,6 +109,8 @@ class CycleGAN:
     tf.summary.image('X/reconstruction', utils.batch_convert2int(self.F(self.G(x))))
     tf.summary.image('Y/generated', utils.batch_convert2int(self.F(y)))
     tf.summary.image('Y/reconstruction', utils.batch_convert2int(self.G(self.F(y))))
+    tf.summary.image('fix/generated', utils.batch_convert2int(self.G(fix)))
+    tf.summary.image('fix/reconstruction', utils.batch_convert2int(self.F(self.G(fix))))
 
     return G_loss, D_Y_loss, F_loss, D_X_loss, fake_y, fake_x
 

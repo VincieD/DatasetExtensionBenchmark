@@ -1,0 +1,11 @@
+{
+  "description": "The official PyTorch version of CycleGAN.", 
+  "pool_size": 50,
+  "base_lr":0.0001,
+  "max_step": 2,
+  "network_version": "pytorch",
+  "dataset_name": "summer2winter_road_256_small_2k_ped_train",
+  "do_flipping": 0,
+  "_LAMBDA_A": 10,
+  "_LAMBDA_B": 10
+}
